@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "./generated/prisma/client.ts";
+import { PrismaClient } from "./generated/prisma/client.js";
 
 const app = express();
 const PORT = 3001;
