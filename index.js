@@ -20,6 +20,15 @@ app.get("/tasks", async (req, res) => {
     res.json(tasks);
 });
 
+// TEMP debug route: confirms the function runs and whether DATABASE_URL is present.
+app.get("/debug", (req, res) => {
+    res.json({
+        ok: true,
+        hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
+        databaseUrlPrefix: (process.env.DATABASE_URL || "").slice(0, 20),
+    });
+});
+
 // CREATE:  add a task
 app.post("/tasks", async (req, res) => {
     const newTask = await prisma.task.create({
@@ -54,6 +63,12 @@ app.delete("/tasks/:id", async (req, res) => {
     } catch (err) {
         res.status(404).json({ error: "Task not found"});
     }
+});
+
+// Error handler: surface the real error message instead of a bare 500.
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).json({ error: err.message, code: err.code });
 });
 
 // On Vercel the function is invoked directly, so we must NOT call listen().
