@@ -20,30 +20,6 @@ app.get("/tasks", async (req, res) => {
     res.json(tasks);
 });
 
-// TEMP debug route: confirms the function runs and whether DATABASE_URL is present.
-app.get("/debug", (req, res) => {
-    const url = process.env.DATABASE_URL || "";
-    let parseOk = false;
-    let parseError = null;
-    try {
-        new URL(url);
-        parseOk = true;
-    } catch (e) {
-        parseError = e.message;
-    }
-    res.json({
-        ok: true,
-        hasDatabaseUrl: Boolean(url),
-        length: url.length,
-        prefix: url.slice(0, 20),
-        suffix: url.slice(-30),
-        hasWhitespace: /\s/.test(url),
-        hasNewline: /[\r\n]/.test(url),
-        parseOk,
-        parseError,
-    });
-});
-
 // CREATE:  add a task
 app.post("/tasks", async (req, res) => {
     const newTask = await prisma.task.create({
@@ -80,10 +56,10 @@ app.delete("/tasks/:id", async (req, res) => {
     }
 });
 
-// Error handler: surface the real error message instead of a bare 500.
+// Error handler: log the full error server-side, return a generic message to clients.
 app.use((err, req, res, next) => {
     console.error(err);
-    res.status(500).json({ error: err.message, code: err.code });
+    res.status(500).json({ error: "Internal server error" });
 });
 
 // On Vercel the function is invoked directly, so we must NOT call listen().
