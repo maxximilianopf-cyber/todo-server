@@ -22,10 +22,25 @@ app.get("/tasks", async (req, res) => {
 
 // TEMP debug route: confirms the function runs and whether DATABASE_URL is present.
 app.get("/debug", (req, res) => {
+    const url = process.env.DATABASE_URL || "";
+    let parseOk = false;
+    let parseError = null;
+    try {
+        new URL(url);
+        parseOk = true;
+    } catch (e) {
+        parseError = e.message;
+    }
     res.json({
         ok: true,
-        hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
-        databaseUrlPrefix: (process.env.DATABASE_URL || "").slice(0, 20),
+        hasDatabaseUrl: Boolean(url),
+        length: url.length,
+        prefix: url.slice(0, 20),
+        suffix: url.slice(-30),
+        hasWhitespace: /\s/.test(url),
+        hasNewline: /[\r\n]/.test(url),
+        parseOk,
+        parseError,
     });
 });
 
