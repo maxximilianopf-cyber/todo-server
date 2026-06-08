@@ -10,7 +10,6 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 app.use(cors());
-app.use(express.json());
 
 //This middleware lets our server understand JSON sent in requests.
 app.use(express.json());
@@ -57,6 +56,12 @@ app.delete("/tasks/:id", async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-});
+// On Vercel the function is invoked directly, so we must NOT call listen().
+// Locally (no VERCEL env var) we start a normal server for development.
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`Server running at http://localhost:${PORT}`);
+    });
+}
+
+export default app;
